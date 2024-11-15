@@ -1,40 +1,34 @@
-name: OSV-Scanner
+name: SPHA
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: [ main ]
   merge_group:
-    types: [checks_requested]
-  schedule:
-    - cron: "12 12 * * 1"
-  push:
-    branches: ["main"]
-  workflow_dispatch:
+    branches: [ main ]
 
 permissions:
   # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
   actions: read
   # Require writing security events to upload SARIF file to security tab
   security-events: write
-  # Read commit contents
+  # Only need to read contents
   contents: read
 
 jobs:
-  scan-scheduled:
-    if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@8bd1ce1c4be9d98053ffd9e6e14585276a36762c" # v1.9.1
-    with:
-      # Example of specifying custom arguments
-      scan-args: |-
-        -r
-        --skip-git
-        ./
   scan-pr:
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'merge_group' }}
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@8bd1ce1c4be9d98053ffd9e6e14585276a36762c" # v1.9.1
+    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.9.1"
     with:
-      # Example of specifying custom arguments
       scan-args: |-
-        -r
-        --skip-git
+        --format=json
+        --output osv-results.json
+        --recursive
+        --skip-git=true
         ./
+  spha:
+    uses: fraunhofer-iem/spha-action@0.0.1
+    with:
+      scan-args: |-
+        transform
+        --tool osv
+        --inputFile osv-results.json
+        --output kpis.json
