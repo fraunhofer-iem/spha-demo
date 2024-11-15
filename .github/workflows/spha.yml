@@ -30,7 +30,7 @@ jobs:
         --skip-git=true
         ./
   spha:
-    uses: fraunhofer-iem/spha-action@0.0.1
+    uses: "fraunhofer-iem/spha-action@0.0.1"
     with:
       scan-args: |-
         transform
