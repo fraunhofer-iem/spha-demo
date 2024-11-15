@@ -2,9 +2,14 @@ name: SPHA
 
 on:
   pull_request:
-    branches: [ main ]
+    branches: ["main"]
   merge_group:
-    branches: [ main ]
+    types: [checks_requested]
+  schedule:
+    - cron: "12 12 * * 1"
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
 permissions:
   # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
