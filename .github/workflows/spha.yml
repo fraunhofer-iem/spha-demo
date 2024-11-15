@@ -2,9 +2,9 @@ name: SPHA
 
 on:
   pull_request:
-    branches: [main]
+    branches: [ main ]
   merge_group:
-    branches: [main]
+    branches: [ main ]
 
 permissions:
   # Required to upload SARIF file to CodeQL. See: https://github.com/github/codeql-action/issues/2117
@@ -24,3 +24,12 @@ jobs:
         --recursive
         --skip-git=true
         ./
+
+  spha:
+    uses: fraunhofer-iem/spha-action@0.0.1
+    with:
+      scan-args: |-
+        transform
+        --tool osv
+        --inputFile osv-results.json
+        --output kpis.json
