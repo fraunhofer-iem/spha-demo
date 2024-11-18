@@ -29,11 +29,22 @@ jobs:
         --recursive
         --skip-git=true
         ./
+
   spha:
-    uses: "fraunhofer-iem/spha-action@0.0.1"
-    with:
-      scan-args: |-
-        transform
-        --tool osv
-        --inputFile osv-results.json
-        --output kpis.json
+    needs: scan-pr
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download scanner results
+        uses: actions/download-artifacts@fa0a91b85d4f404e444e00e005971372dc801d16
+        with: 
+          name: osv-results.json
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Run SPHA
+        uses: fraunhofer-iem/spha-action@v0.0.1
+        with:
+          scan-args: |-
+            transform
+            --tool osv
+            --inputFile osv-results.json
+            --output kpis.json
