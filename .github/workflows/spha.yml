@@ -21,14 +21,24 @@ permissions:
 
 jobs:
   scan-pr:
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v1.9.0"
-    with:
-      scan-args: |-
-        --format=json
-        --output osv-results.json
-        --recursive
-        --skip-git=true
-        ./
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Run osv scanner
+        uses: google/osv-scanner-action@v1.9.0
+        with:
+          scan-args: |-
+            --format=json
+            --output osv-results.json
+            --recursive
+            --skip-git=true
+            ./
+      - name: Upload Results
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with: 
+          name: osv-results
+          path: osv-results.json
 
   spha:
     needs: scan-pr
@@ -37,7 +47,7 @@ jobs:
       - name: Download scanner results
         uses: actions/download-artifacts@fa0a91b85d4f404e444e00e005971372dc801d16
         with: 
-          name: osv-results.json
+          name: osv-results
       - name: Display structure of downloaded files
         run: ls -R
       - name: Run SPHA
