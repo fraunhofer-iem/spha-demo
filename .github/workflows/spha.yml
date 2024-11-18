@@ -52,10 +52,8 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
       - name: Run SPHA
-        uses: fraunhofer-iem/spha-action@v0.0.1
+        uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
         with:
-          command: transform
-          scan-args: |-
-            --tool osv
-            --inputFile osv-results.json
-            --output kpis.json
+            tool: osv
+            inputFile: osv-results.json
+            output: kpis.json
