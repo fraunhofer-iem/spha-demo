@@ -51,9 +51,19 @@ jobs:
           name: osv-results
       - name: Display structure of downloaded files
         run: ls -R
-      - name: Run SPHA
+      - name: Run SPHA Transform
         uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
         with:
             tool: osv
             inputFile: osv-results.json
+            output: osv-raw-value.json
+      - name: Run SPHA Calculate
+        uses: fraunhofer-iem/spha-action/spha-calculate-action@v0.0.1
+        with:
+            source: $GITHUB_WORKSPACE
             output: kpis.json
+      - name: Upload Results
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with: 
+          name: SPHA-KPIs
+          path: kpis.json
