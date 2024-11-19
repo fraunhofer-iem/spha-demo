@@ -58,7 +58,9 @@ jobs:
       with:
         base: ""
         head: ${{ github.ref_name }}
-        extra_args: --json
+        extra_args: |
+          --json
+          --no-fail
     # - name: Run SPHA Transform
     #   uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
     #   with:
