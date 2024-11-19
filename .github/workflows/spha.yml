@@ -56,6 +56,8 @@ jobs:
     - name: Secret Scanning
       uses: trufflesecurity/trufflehog@main
       with:
+        base: ""
+        head: ${{ github.ref_name }}
         extra_args: --json
     # - name: Run SPHA Transform
     #   uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
