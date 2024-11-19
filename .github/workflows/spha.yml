@@ -59,8 +59,9 @@ jobs:
         base: ""
         head: ${{ github.ref_name }}
         extra_args: |
-          --json
-          --no-fail
+          --json # is not stored in a file. we want to share the json output with the next step. how??
+    # --no-fail # duplicated flag due to --fail in the original action. The step always returns 183 when there are findings.
+    
     # - name: Run SPHA Transform
     #   uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
     #   with:
