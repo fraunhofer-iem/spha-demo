@@ -58,8 +58,11 @@ jobs:
         continue-on-error: true # we can't overwrite --fail flag
         uses: trufflesecurity/trufflehog@main
         with:
-          base: "${{ github.event.repository.default_branch }}"
-          head: HEAD
+          # config for pull requests
+          # base: "${{ github.event.repository.default_branch }}"
+          # head: HEAD
+          base: ""
+          head: ${{ github.ref_name }}
           extra_args: |
             --json
       - name: Export trufflehog results
