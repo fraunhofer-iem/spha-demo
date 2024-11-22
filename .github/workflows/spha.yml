@@ -38,41 +38,45 @@ jobs:
       - name: Run SPHA Transform
         uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
         with:
-            tool: osv
-            inputFile: osv-results.json
-            output: osv-raw-value.json
+          tool: osv
+          inputFile: osv-results.json
+          output: osv-raw-value.json
       - name: Upload Results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
-        with: 
+        with:
           name: osv-kpi-results
           path: osv-raw-value.json
   trufflehog:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        fetch-depth: 0
-    - name: Secret Scanning
-      uses: trufflesecurity/trufflehog@main
-      with:
-        base: ""
-        head: ${{ github.ref_name }}
-        extra_args: |
-          --json # is not stored in a file. we want to share the json output with the next step. how??
-    # --no-fail # duplicated flag due to --fail in the original action. The step always returns 183 when there are findings.
-    
-    # - name: Run SPHA Transform
-    #   uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
-    #   with:
-    #       tool: trufflehog
-    #       inputFile: trufflehog-results.json
-    #       output: trufflehog-raw-value.json
-    # - name: Upload Results
-    #   uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
-    #   with: 
-    #     name: trufflehog-kpi-results
-    #     path: trufflehog-raw-value.json
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 0
+      - name: Secret Scanning via trufflehog
+        id: secret-scanning-trufflehog
+        continue-on-error: true # we can't overwrite --fail flag
+        uses: trufflesecurity/trufflehog@main
+        with:
+          base: "${{ github.event.repository.default_branch }}"
+          head: HEAD
+          extra_args: |
+            --json
+      - name: Export trufflehog results
+        run: |
+          echo "${{ steps.secret-scanning-trufflehog.outputs.result }}" > trufflehog.log
+          grep -e '^{.*}$' trufflehog.log | awk 'BEGIN {print "{\"results\":["} {printf "%s%s", sep, $0; sep="," } END {print "]}"}' > trufflehog-results.json
+      - name: Run SPHA Transform
+        uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
+        with:
+          tool: trufflehog
+          inputFile: trufflehog-results.json
+          output: trufflehog-raw-value.json
+      - name: Upload Results
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+        with:
+          name: trufflehog-kpi-results
+          path: trufflehog-raw-value.json
 
   spha:
     needs: [osv, trufflehog]
@@ -80,7 +84,7 @@ jobs:
     steps:
       - name: Download scanner results
         uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-        with: 
+        with:
           name: osv-kpi-results
       - name: Display structure of downloaded files
         run: ls -R
@@ -88,10 +92,10 @@ jobs:
       - name: Run SPHA Calculate
         uses: fraunhofer-iem/spha-action/spha-calculate-action@v0.0.1
         with:
-            source: $GITHUB_WORKSPACE
-            output: kpis.json
+          source: $GITHUB_WORKSPACE
+          output: kpis.json
       - name: Upload Results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
-        with: 
+        with:
           name: SPHA-KPIs
           path: kpis.json
