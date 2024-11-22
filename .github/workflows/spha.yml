@@ -71,7 +71,7 @@ jobs:
           --no-update \
           --github-actions \
           --json > trufflehog.log 2>&1 || true
-          grep -e '^{.*}$' trufflehog.log | awk 'BEGIN {print "{\"results\":["} {printf "%s%s", sep, $0; sep="," } END {print "]}"}' > trufflehog-results.json
+          grep -e '^{.*}$' trufflehog.log | awk 'BEGIN {print "{\"results\":["} {printf "%s%s", sep, $0; sep="," } END {print "]}"}' | jq > trufflehog-results.json
           cat trufflehog-results.json
       - name: Run SPHA Transform
         uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
