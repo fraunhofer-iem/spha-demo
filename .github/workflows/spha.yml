@@ -84,4 +84,9 @@ jobs:
       - name: Run SPHA Calculate
         uses: fraunhofer-iem/spha-action@v0.0.2
         with:
-         args: analyze --toolResultDir . --output kpis.json
+          args: |
+            analyze
+            --toolResultDir
+            .
+            --output
+            kpis.json
