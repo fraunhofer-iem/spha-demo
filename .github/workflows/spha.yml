@@ -35,17 +35,11 @@ jobs:
             --skip-git=true
             ./
         continue-on-error: true
-      - name: Run SPHA Transform
-        uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
-        with:
-          tool: osv
-          inputFile: osv-results.json
-          output: osv-raw-value.json
       - name: Upload Results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
         with:
           name: osv-kpi-results
-          path: osv-raw-value.json
+          path: osv-results.json
   trufflehog:
     runs-on: ubuntu-latest
     steps:
@@ -73,19 +67,13 @@ jobs:
           --json > trufflehog.log 2>&1 || true
           grep -e '^{.*}$' trufflehog.log | awk 'BEGIN {print "{\"results\":["} {printf "%s%s", sep, $0; sep="," } END {print "]}"}' | jq > trufflehog-results.json
           cat trufflehog-results.json
-      - name: Run SPHA Transform
-        uses: fraunhofer-iem/spha-action/spha-transform-action@v0.0.1
-        with:
-          tool: trufflehog
-          inputFile: trufflehog-results.json
-          output: trufflehog-raw-value.json
       - name: Upload Results
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
         with:
           name: trufflehog-kpi-results
-          path: trufflehog-raw-value.json
+          path: trufflehog-results.json
 
-  spha:
+ spha:
     needs: [osv, trufflehog]
     runs-on: ubuntu-latest
     steps:
@@ -95,12 +83,7 @@ jobs:
         run: ls -R
 
       - name: Run SPHA Calculate
-        uses: fraunhofer-iem/spha-action/spha-calculate-action@v0.0.1
+        uses: fraunhofer-iem/spha-action/spha-calculate-action@latest
         with:
-          source: $GITHUB_WORKSPACE
-          output: kpis.json
-      - name: Upload Results
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
-        with:
-          name: SPHA-KPIs
-          path: kpis.json
+         version: latest
+         args: analyze --toolResultDir . --output kpis.json
