@@ -72,8 +72,7 @@ jobs:
         with:
           name: trufflehog-kpi-results
           path: trufflehog-results.json
-
- spha:
+  spha:
     needs: [osv, trufflehog]
     runs-on: ubuntu-latest
     steps:
